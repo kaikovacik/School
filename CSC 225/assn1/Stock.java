@@ -46,7 +46,7 @@ public class Stock
 	}
 
 	public static int[] readInput(Scanner s)
-    {
+    	{
 		Queue<Integer> q = new LinkedList<Integer>();
 
 		int n=0;
@@ -66,7 +66,7 @@ public class Stock
 	}
 
 	public static void main(String[] args)
-    {
+    	{
 		Scanner s;
         Stock m = new Stock();
 
