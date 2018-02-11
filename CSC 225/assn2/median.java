@@ -1,5 +1,6 @@
 import java.util.Scanner;
 
+// =====================================================================================================================
 
 public class median
 {
@@ -38,6 +39,7 @@ public class median
 	}
 }
 
+// =====================================================================================================================
 
 class minHeap
 {
@@ -62,7 +64,9 @@ class minHeap
 	
 	public void insert(int x)
 	{
-		//Your code goes here
+		heap[size] = x;
+		bubbleup(size);
+		size++;
 	}
 	
 	public void bubbleup(int index)
@@ -70,39 +74,59 @@ class minHeap
 		int parentIndex = (index-1)/2;
 
 		// Basecase when index is root or inappropriate to swap.
-		if(nullAt(parentIndex) || orderIs(index, parentIndex))
+		if(heap[index] >= heap[parentIndex])
 			return;
 		else
 		{
 			exchange(index, parentIndex);
 			bubbleup(parentIndex);
 		}
-		
 	}
+
 	public void exchange(int index1, int index2)
 	{
-		int temp = heap(index1);
-		heap(index1) = heap(index2);
-		heap(index2) = heap(index1);
+		int temp = heap[index1];
+		heap[index1] = heap[index2];
+		heap[index2] = temp;
 	}
-	public void bubbledown(int k)
+
+	public void bubbledown(int index)
 	{
-		//Your code goes here
-	
+		int leftIndex = 2*index+1;
+		int rightIndex = 2*index+2;
+
+		// Basecase when no daughters or when both daughters are greater.
+		if(leftIndex > size-1 || (heap[index] < heap[leftIndex] && heap[index] < heap[rightIndex])) 
+			return;
+		else if((rightIndex > size-1 && heap[index] > heap[leftIndex])  || heap[leftIndex] <= heap[rightIndex])
+		{
+			exchange(index, leftIndex);
+			bubbledown(leftIndex);
+		}
+		else if(rightIndex < size-1)
+		{
+			exchange(index, rightIndex);
+			bubbledown(rightIndex);
+		}
 	}
+
 	public int peek()
 	{
-		//Your code goes here
-		return -1;
+		return (size != 0)? heap[0] : -1;
 	}
 	
 	public int removeMin()
 	{
-		//Your code goes here
-		return -1;
+		exchange(0, size-1);
+		int temp = heap[size-1];
+		heap[size-1] = 0;
+		size--;
+		bubbledown(0);
+		return temp;
 	}
 }
 
+// =====================================================================================================================
 
 class maxHeap
 {
@@ -111,8 +135,8 @@ class maxHeap
 	
 	public maxHeap()
 	{
-		heap=new int[10000];
-		size=0;
+		heap = new int[10000];
+		size = 0;
 	}
 	
 	public boolean isEmpty()
@@ -125,33 +149,68 @@ class maxHeap
 		return size;
 	}
 	
-	public void insert(int index)
+	public void insert(int x)
 	{
-		//Your code goes here
+		heap[size] = x;
+		bubbleup(size);
+		size++;
 	}
 	
 	public void bubbleup(int index)
 	{
-		
+		int parentIndex = (index-1)/2;
+
+		// Basecase when index is root or inappropriate to swap.
+		if(heap[index] <= heap[parentIndex])
+			return;
+		else
+		{
+			exchange(index, parentIndex);
+			bubbleup(parentIndex);
+		}
 	}
-	public void exchange(int i,int j)
+
+	public void exchange(int index1, int index2)
 	{
-		//Your code goes here
+		int temp = heap[index1];
+		heap[index1] = heap[index2];
+		heap[index2] = temp;
 	}
-	public void bubbledown(int k)
+
+	public void bubbledown(int index)
 	{
-		//Your code goes here
-		
+		int leftIndex = 2*index+1;
+		int rightIndex = 2*index+2;
+
+		// Basecase when no daughters or when both daughters are greater.
+		if(leftIndex > size-1 || (heap[index] > heap[leftIndex] && heap[index] > heap[rightIndex])) 
+			return;
+		else if((rightIndex > size-1 && heap[index] < heap[leftIndex])  || heap[leftIndex] >= heap[rightIndex])
+		{
+			exchange(index, leftIndex);
+			bubbledown(leftIndex);
+		}
+		else if(rightIndex < size-1)
+		{
+			exchange(index, rightIndex);
+			bubbledown(rightIndex);
+		}
 	}
+
 	public int peek()
 	{
-		//Your code goes here
-		return -1;
+		return (size != 0)? heap[0] : -1;
 	}
 	
-	public int removeMax()
+	public int removeMin()
 	{
-		//Your code goes here
-		return -1;
+		exchange(0, size-1);
+		int temp = heap[size-1];
+		heap[size-1] = 0;
+		size--;
+		bubbledown(0);
+		return temp;
 	}
 }
+
+// =====================================================================================================================

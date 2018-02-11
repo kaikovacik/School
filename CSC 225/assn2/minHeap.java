@@ -31,7 +31,7 @@ public class minHeap
 		int parentIndex = (index-1)/2;
 
 		// Basecase when index is root or inappropriate to swap.
-		if(heap[index] >= heap[parentIndex])
+		if(heap[index] <= heap[parentIndex])
 			return;
 		else
 		{
@@ -54,13 +54,13 @@ public class minHeap
 	{
 		int leftIndex = 2*index+1;
 		int rightIndex = 2*index+2;
-		System.out.print(index + " ");
+		System.out.print(size + " " + (leftIndex > size-1) + "or" + (heap[index] >= heap[leftIndex] && heap[index] >= heap[rightIndex]) + " ");
 		printHeap();
 
 		// Basecase when no daughters or when both daughters are greater.
-		if(leftIndex > size-1 || (heap[index] < heap[leftIndex] && heap[index] < heap[rightIndex])) 
+		if(leftIndex > size-1 || (heap[index] > heap[leftIndex] && heap[index] > heap[rightIndex])) 
 			return;
-		else if(rightIndex > size-1 || heap[leftIndex] < heap[rightIndex])
+		else if((rightIndex > size-1 && heap[index] < heap[leftIndex])  || heap[leftIndex] >= heap[rightIndex])
 		{
 			exchange(index, leftIndex);
 			bubbledown(leftIndex);
