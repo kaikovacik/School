@@ -1,11 +1,11 @@
 import java.util.*;
 
-public class minHeap
+public class maxHeap
 {
 	private int[] heap;
 	private int size;
 	
-	public minHeap()
+	public maxHeap()
 	{
 		heap = new int[10000];
 		size = 0;
@@ -31,7 +31,7 @@ public class minHeap
 	public void bubbleup(int index)
 	{
 		// Basecase when index is root or inappropriate to swap.
-		if(heap[index] < heap[(index-1)/2])
+		if(heap[index] > heap[(index-1)/2])
 		{
 			exchange(index, (index-1)/2);
 			bubbleup((index-1)/2);
@@ -47,12 +47,12 @@ public class minHeap
 
 	public void bubbledown(int index)
 	{
-		if(2*index+1-1+1 < size && heap[index] > heap[2*index+1])
+		if(2*index+1-1+1 < size && heap[index] < heap[2*index+1])
 		{
 			exchange(index, 2*index+1);
 			bubbledown(2*index+1);
 		}
-		if(2*index+2-1+1 < size && heap[index] > heap[2*index+2])
+		if(2*index+2-1+1 < size && heap[index] < heap[2*index+2])
 		{
 			exchange(index, 2*index+2);
 			bubbledown(2*index+2);
@@ -64,7 +64,7 @@ public class minHeap
 		return (size != 0)? heap[0] : -1;
 	}
 	
-	public int removeMin()
+	public int removeMax()
 	{
 		exchange(0, size-1);
 		int temp = heap[size-1];
@@ -86,7 +86,7 @@ public class minHeap
 
 	public static void main(String[] args) 
 	{
-		minHeap heap = new minHeap();
+		maxHeap heap = new maxHeap();
 		Scanner scan = new Scanner(System.in);
 
 		int in = scan.nextInt();
@@ -99,7 +99,7 @@ public class minHeap
 		int n = heap.size();
 		for(int i = 0; i < n; i++)
 		{
-			System.out.println(heap.size() + " [" + heap.peek() + " " + heap.removeMin() + "]");
+			System.out.println(heap.size() + " [" + heap.peek() + " " + heap.removeMax() + "]");
 			//heap.printHeap();
 		}
 	}

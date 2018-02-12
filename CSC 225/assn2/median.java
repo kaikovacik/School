@@ -1,21 +1,33 @@
 import java.util.Scanner;
 
+// MEDIAN===============================================================================================================
 
 public class median
 {
-	static minHeap min;
-	static maxHeap max;
+	static minHeap greater;
+	static maxHeap lesser;
 	
 	public median()
 	{
-		min = new minHeap();
-		max = new maxHeap();
+		greater = new minHeap();
+		lesser = new maxHeap();
 	}
 	
 	public static int calculateMedian(int x)
 	{
-		//your code goes here
-		return -1;
+		// Insert into minHeap if x > median, else insert into maxHeap
+		if(x > greater.peek())
+			greater.insert(x);
+		else lesser.insert(x);
+
+		// Balance heaps so median can be accessed
+		while(greater.size()-lesser.size() > 1)
+			lesser.insert(greater.removeMin());
+		while(greater.size()-lesser.size() < 1)
+			greater.insert(lesser.removeMax());
+
+		// median stored at the top of minHeap
+		return greater.peek();
 	}
 	
 	public static void main(String[] args)
@@ -38,6 +50,7 @@ public class median
 	}
 }
 
+// MINHEAP==============================================================================================================
 
 class minHeap
 {
@@ -62,47 +75,59 @@ class minHeap
 	
 	public void insert(int x)
 	{
-		//Your code goes here
+		heap[size] = x;
+		bubbleup(size);
+		size++;
 	}
 	
 	public void bubbleup(int index)
 	{
-		int parentIndex = (index-1)/2;
-
 		// Basecase when index is root or inappropriate to swap.
-		if(nullAt(parentIndex) || orderIs(index, parentIndex))
-			return;
-		else
+		if(heap[index] < heap[(index-1)/2])
 		{
-			exchange(index, parentIndex);
-			bubbleup(parentIndex);
+			exchange(index, (index-1)/2);
+			bubbleup((index-1)/2);
 		}
-		
 	}
+
 	public void exchange(int index1, int index2)
 	{
-		int temp = heap(index1);
-		heap(index1) = heap(index2);
-		heap(index2) = heap(index1);
+		int temp = heap[index1];
+		heap[index1] = heap[index2];
+		heap[index2] = temp;
 	}
-	public void bubbledown(int k)
+
+	public void bubbledown(int index)
 	{
-		//Your code goes here
-	
+		if(2*index+1 < size && heap[index] > heap[2*index+1])
+		{
+			exchange(index, 2*index+1);
+			bubbledown(2*index+1);
+		}
+		if(2*index+2 < size && heap[index] > heap[2*index+2])
+		{
+			exchange(index, 2*index+2);
+			bubbledown(2*index+2);
+		}
 	}
+
 	public int peek()
 	{
-		//Your code goes here
-		return -1;
+		return (size != 0)? heap[0] : -1;
 	}
 	
 	public int removeMin()
 	{
-		//Your code goes here
-		return -1;
+		exchange(0, size-1);
+		int temp = heap[size-1];
+		heap[size-1] = 0;
+		size--;
+		bubbledown(0);
+		return temp;
 	}
 }
 
+// MAXHEAP==============================================================================================================
 
 class maxHeap
 {
@@ -111,8 +136,8 @@ class maxHeap
 	
 	public maxHeap()
 	{
-		heap=new int[10000];
-		size=0;
+		heap = new int[10000];
+		size = 0;
 	}
 	
 	public boolean isEmpty()
@@ -125,33 +150,58 @@ class maxHeap
 		return size;
 	}
 	
-	public void insert(int index)
+	public void insert(int x)
 	{
-		//Your code goes here
+		heap[size] = x;
+		bubbleup(size);
+		size++;
 	}
 	
 	public void bubbleup(int index)
 	{
-		
+		// Basecase when index is root or inappropriate to swap.
+		if(heap[index] > heap[(index-1)/2])
+		{
+			exchange(index, (index-1)/2);
+			bubbleup((index-1)/2);
+		}
 	}
-	public void exchange(int i,int j)
+
+	public void exchange(int index1, int index2)
 	{
-		//Your code goes here
+		int temp = heap[index1];
+		heap[index1] = heap[index2];
+		heap[index2] = temp;
 	}
-	public void bubbledown(int k)
+
+	public void bubbledown(int index)
 	{
-		//Your code goes here
-		
+		if(2*index+1-1+1 < size && heap[index] < heap[2*index+1])
+		{
+			exchange(index, 2*index+1);
+			bubbledown(2*index+1);
+		}
+		if(2*index+2-1+1 < size && heap[index] < heap[2*index+2])
+		{
+			exchange(index, 2*index+2);
+			bubbledown(2*index+2);
+		}
 	}
+
 	public int peek()
 	{
-		//Your code goes here
-		return -1;
+		return (size != 0)? heap[0] : -1;
 	}
 	
 	public int removeMax()
 	{
-		//Your code goes here
-		return -1;
-	}
+		exchange(0, size-1);
+		int temp = heap[size-1];
+		heap[size-1] = 0;
+		size--;
+		bubbledown(0);
+		return temp;
+	} 
 }
+
+// =====================================================================================================================
