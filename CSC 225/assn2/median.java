@@ -82,7 +82,7 @@ class minHeap
 	
 	public void bubbleup(int index)
 	{
-		// Basecase when index is root or inappropriate to swap.
+		// Basecase when index is root or inappropriate to swap
 		if(heap[index] < heap[(index-1)/2])
 		{
 			exchange(index, (index-1)/2);
@@ -99,6 +99,7 @@ class minHeap
 
 	public void bubbledown(int index)
 	{
+		// Basecase when index is leaf node or inappropriate to swap
 		if(2*index+1 < size && heap[index] > heap[2*index+1])
 		{
 			exchange(index, 2*index+1);
@@ -176,6 +177,7 @@ class maxHeap
 
 	public void bubbledown(int index)
 	{
+		// Basecase when index is leaf node or inappropriate to swap
 		if(2*index+1-1+1 < size && heap[index] < heap[2*index+1])
 		{
 			exchange(index, 2*index+1);
