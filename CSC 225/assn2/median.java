@@ -179,13 +179,13 @@ class maxHeap
 	public void bubbledown(int index)
 	{
 		// Basecase when index is leaf node or inappropriate to swap
-		if(2*index+1-1+1 < size && heap[index] < heap[2*index+1])
+		if(2*index+1 < size && heap[index] < heap[2*index+1])
 		{
 			exchange(index, 2*index+1);
 			bubbledown(2*index+1);
 		}
 		
-		if(2*index+2-1+1 < size && heap[index] < heap[2*index+2])
+		if(2*index+2 < size && heap[index] < heap[2*index+2])
 		{
 			exchange(index, 2*index+2);
 			bubbledown(2*index+2);
