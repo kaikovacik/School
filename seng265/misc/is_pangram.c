@@ -14,9 +14,7 @@ int is_pangram(char *sentence)
 	{
 		char c = tolower(*sentence);
 		if((int) c >= 97 && (int) c <= 122)
-		{
 			flag_letter[(int) c-97] = 1;
-		}
 		sentence++;
 	}
 
