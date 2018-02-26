@@ -185,7 +185,7 @@ class maxHeap
 			bubbledown(2*index+1);
 		}
 		
-		if(2*index+2 < size && heap[index] s< heap[2*index+2])
+		if(2*index+2 < size && heap[index] < heap[2*index+2])
 		{
 			exchange(index, 2*index+2);
 			bubbledown(2*index+2);
