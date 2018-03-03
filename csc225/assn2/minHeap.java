@@ -47,12 +47,12 @@ public class minHeap
 
 	public void bubbledown(int index)
 	{
-		if(2*index+1-1+1 < size && heap[index] > heap[2*index+1])
+		if(2*index+1 < size && heap[index] > heap[2*index+1])
 		{
 			exchange(index, 2*index+1);
 			bubbledown(2*index+1);
 		}
-		if(2*index+2-1+1 < size && heap[index] > heap[2*index+2])
+		if(2*index+2 < size && heap[index] > heap[2*index+2])
 		{
 			exchange(index, 2*index+2);
 			bubbledown(2*index+2);
@@ -95,6 +95,8 @@ public class minHeap
 			heap.insert(in);
 			in = scan.nextInt();
 		}
+
+		heap.printHeap();
 
 		int n = heap.size();
 		for(int i = 0; i < n; i++)
