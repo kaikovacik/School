@@ -4,7 +4,7 @@
 #include <ctype.h>
 
 #define MAX_WORD_LEN 		128
-#define MAX_WORDS		32
+#define MAX_WORDS			32
 #define MAX_EXCL_WORDS		32
 #define MAX_KEYWORDS 		256
 #define MAX_PHRASES 		128
