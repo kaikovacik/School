@@ -21,6 +21,7 @@ public class AVL_BST
 
 		for(int i = 0; i < a.length; i++)
 			temp.insert(a[i]);
+
 		return temp;
 	}
 
@@ -126,8 +127,7 @@ class BST
 	{
 		if (node == null)
 			return "";
-		else
-			return toString(node.left) 
+		else return toString(node.left) 
 					+ ((node.left != null)? " " : "") // space
 					+ Integer.toString(node.value) 
 					+ ((node.right != null)? " " : "") // space
