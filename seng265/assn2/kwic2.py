@@ -12,7 +12,11 @@ def read():
 				exclusion_words.append(s.lower())
 			elif block is 2:
 				phrases.append(s)
-		s = input()
+		try:
+			s = input()
+		except Exception as e:
+			break
+		
 
 	return phrases, exclusion_words
 
@@ -30,7 +34,7 @@ def findKeyWords(phrases, exclusion_words):
 	return key_words
 
 
-def highlightKeywords(phrases, key_words):
+def highlightKeyWords(phrases, key_words):
 	output = []
 
 	for key_word in key_words:
@@ -47,37 +51,71 @@ def highlightKeywords(phrases, key_words):
 
 	return output
 
+
+def formatAndPrint(line):
+	# find key_word index
+	kw_index = 0
+	for word in line:
+		if word.isupper():
+			break
+		else:
+			kw_index += 1
+
+	# find start index
+	if kw_index > 1:
+		start = kw_index
+		total_len = 0
+		for word in line[kw_index-1::-1]:
+			total_len += len(" {}".format(word))
+			if total_len > 20:
+				break
+			else:
+				start -= 1
+	else:
+		start = 0
+
+	if kw_index is len(line):
+		start -= 1
+
+	#################################################### FIX RIGHT FORMATTING!!
+	# find end index
+	if kw_index is not len(line):
+		end = kw_index
+		total_len = 0
+		for word in line[kw_index::]:
+			total_len += len(" {}".format(word))
+			if total_len > 30:
+				break
+			else:
+				end += 1
+	else:
+		end = kw_index+1
+
+	# split phrase into three strings for output
+	left = ""
+	space_l = ""
+	for word in line[start:kw_index:]:
+		left = "{}{}{}".format(left, space, word)
+		space = " "
+
+	key_word = line[kw_index]
+
+	right = ""
+	space_r = ""
+	for word in line[kw_index+1:end+1:]:
+		right = "{}{}{}".format(right, space, word)
+		space = " "
+
+	print("{:>28s}{}{}{}{}".format(left, space_l, key_word, space_r, right))
+
+
 def main():
 	phrases, exclusion_words = read()
 	key_words = findKeyWords(phrases, exclusion_words)
-	output = highlightKeywords(phrases, key_words)
+	output = highlightKeyWords(phrases, key_words)
 
-	left = []
-	index = ""
-	right = []
-
-	print(output[0])
-
-	after_key_word = False
-	for word in output[0]:
-		if word.isupper() and word not in exclusion_words:
-			after_key_word = True
-			index = word
-		else:
-			if after_key_word:
-				right.append(word)
-			else:
-				left.append(word)
-
-	left_str = ""
-	space = ""
-	for word in left:
-		left_str = left_str + space + word
-		space = " "
-
-	print(left, index, right)
-	print(left_str)
-	#print("{:>30s}{}{:<}".format('welcome my friend I love so much', key_words[0], "hey"))
+	for line in output:
+		formatAndPrint(line)
 
 if __name__ == '__main__':
 	main()
