@@ -7,9 +7,9 @@ public class AVL_BST
 {
 	public static boolean checkAVL(BST b)
 	{
-		if (b.height() < 3)
+		if (b.rootHeight() < 3)
 			return true;
-		else return Math.abs(b.leftSubtree().height()-b.rightSubtree().height()) <= 1
+		else return Math.abs(b.leftSubtree().rootHeight()-b.rightSubtree().rootHeight()) <= 1
 					&& checkAVL(b.leftSubtree())
 					&& checkAVL(b.rightSubtree())
 					;
@@ -27,19 +27,19 @@ public class AVL_BST
 
 	public static void main(String[] args)
 	{
-		int[][] a = {{82, 85, 153, 195, 124, 66, 200, 193, 185, 243, 73, 153, 76},
+		int[][] a = {{82,12},
+					{82, 85, 153, 195, 124, 66, 200, 193, 185, 243, 73, 153, 76},
 					{5, 3, 7, 1},
 					{5, 1, 98, 100, -3, -5, 55, 3, 56, 50},
 					{297, 619, 279, 458, 324, 122, 505, 549, 83, 186, 131, 71},
-					{78}}
+					{78},
+					{55, 12,11,22,64,58}}
 					;
 		for (int i = 0; i < a.length; i++)
 		{
 			BST T = createBST(a[i]);
 			System.out.println("CHECKING " + T);
 			System.out.println("RETURNED " + checkAVL(T));
-			System.out.println(T.tallness() + " " + T.height());
-			System.out.println();
 		}
 	}
 }
@@ -79,7 +79,7 @@ class BST
 		private TreeNode(int value)
 		{
 			this.value = value;
-			this.height = height;
+			this.height = 1;
 			this.parent = null;
 			this.left = null;
 			this.right = null;
@@ -101,32 +101,28 @@ class BST
 	{
 		switch(side)
 		{
-			case "left":
-				if (node.parent != null && node.parent.right != null && node.parent.right.height <= node.height)
-				{
-					node.parent.height++;
-
-					if(node.parent.parent != null)
-						side = ((node.parent.parent.value > node.parent.value)? "left" : "right");
-					else side = "root";
-
-					updateNodeHeights(node.parent, side);
-				}
-
-			case "right":
-				if (node.parent != null && node.parent.left != null && node.parent.left.height <= node.height)
-				{
-					node.parent.height++;
-
-					if(node.parent.parent != null)
-						side = ((node.parent.parent.value > node.parent.value)? "left" : "right");
-					else side = "root";
-
-					updateNodeHeights(node.parent, side);
-				}
-
 			case "root":
 				return;
+			case "left":
+				if (node.parent.right == null || node.parent.right.height < node.height)
+				{
+					node.parent.height++;
+					if(node.parent.parent != null)
+						side = (node.parent.parent.value > node.parent.value)? "left" : "right";
+					else side = "root";
+					updateNodeHeights(node.parent, side);
+					return;
+				}
+			case "right":
+				if (node.parent.left == null || node.parent.left.height < node.height)
+				{
+					node.parent.height++;
+					if(node.parent.parent != null)
+						side = (node.parent.parent.value > node.parent.value)? "left" : "right";
+					else side = "root";
+					updateNodeHeights(node.parent, side);
+					return;
+				}
 		}
 	}
 	private void insert(TreeNode node, int value)
@@ -137,14 +133,12 @@ class BST
 			insert(node.right, value);
 		else if (node.left == null && value < node.value)
 		{
-			node.left = new TreeNode(value);
-			node.left.parent = node;
+			node.left = new TreeNode(value, node);
 			updateNodeHeights(node.left, "left");
 		}
 		else if (node.right == null && value > node.value)
 		{
-			node.right = new TreeNode(value);
-			node.right.parent = node;
+			node.right = new TreeNode(value, node);
 			updateNodeHeights(node.right, "right");
 		}
 	}
@@ -172,9 +166,9 @@ class BST
 		return new BST(root.right, size-1);
 	}
 
-	public int tallness()
+	public int rootHeight()
 	{
-		return root.height;
+		return (root != null)? root.height : 0;
 	}
 
 	public int size()
