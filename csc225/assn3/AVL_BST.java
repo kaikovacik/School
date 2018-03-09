@@ -10,7 +10,7 @@ public class AVL_BST
 		if (b.height() < 3)
 			return true;
 		else return Math.abs(b.leftSubtree().height()-b.rightSubtree().height()) <= 1
-					&& checkAVL(b.leftSubtree()) 
+					&& checkAVL(b.leftSubtree())
 					&& checkAVL(b.rightSubtree())
 					;
 	}
@@ -19,7 +19,7 @@ public class AVL_BST
 	{
 		BST temp = new BST();
 
-		for(int i = 0; i < a.length; i++)
+		for (int i = 0; i < a.length; i++)
 			temp.insert(a[i]);
 
 		return temp;
@@ -27,10 +27,19 @@ public class AVL_BST
 
 	public static void main(String[] args)
 	{
-		int[] a = {78};
-		BST T = createBST(a);
-		System.out.println(T);
-		System.out.println(checkAVL(T));
+		int[][] a = {{82, 85, 153, 195, 124, 66, 200, 193, 185, 243, 73, 153, 76},
+					{5, 3, 7, 1},
+					{5, 1, 98, 100, -3, -5, 55, 3, 56, 50},
+					{297, 619, 279, 458, 324, 122, 505, 549, 83, 186, 131, 71},
+					{78}}
+					;
+		for (int i = 0; i < a.length; i++)
+		{
+			BST T = createBST(a[i]);
+			System.out.println("CHECKING " + T);
+			System.out.println("RETURNED " + checkAVL(T));
+			System.out.println();
+		}
 	}
 }
 
@@ -43,12 +52,14 @@ class BST
 	class TreeNode
 	{
 		private int value;
+		private int height;
 		private TreeNode left;
 		private TreeNode right;
 
-		private TreeNode(int value, TreeNode left, TreeNode right)
+		private TreeNode(int value, int height, TreeNode left, TreeNode right)
 		{
 			this.value = value;
+			this.height = height;
 			this.left = left;
 			this.right = right;
 		}
@@ -56,6 +67,7 @@ class BST
 		private TreeNode(int value)
 		{
 			this.value = value;
+			this.height = 1;
 			this.left = null;
 			this.right = null;
 		}
