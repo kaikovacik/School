@@ -38,6 +38,7 @@ public class AVL_BST
 			BST T = createBST(a[i]);
 			System.out.println("CHECKING " + T);
 			System.out.println("RETURNED " + checkAVL(T));
+			System.out.println(T.tallness() + " " + T.height());
 			System.out.println();
 		}
 	}
@@ -53,21 +54,33 @@ class BST
 	{
 		private int value;
 		private int height;
+		private TreeNode parent;
 		private TreeNode left;
 		private TreeNode right;
 
-		private TreeNode(int value, int height, TreeNode left, TreeNode right)
+		private TreeNode(int value, int height, TreeNode parent, TreeNode left, TreeNode right)
 		{
 			this.value = value;
 			this.height = height;
+			this.parent = parent;
 			this.left = left;
 			this.right = right;
 		}
-
-		private TreeNode(int value)
+		// Used for new leaf nodes
+		private TreeNode(int value, TreeNode parent)
 		{
 			this.value = value;
 			this.height = 1;
+			this.parent = parent;
+			this.left = null;
+			this.right = null;
+		}
+		// Used for new roots
+		private TreeNode(int value)
+		{
+			this.value = value;
+			this.height = height;
+			this.parent = null;
 			this.left = null;
 			this.right = null;
 		}
@@ -75,15 +88,47 @@ class BST
 
 	public BST(TreeNode root, int size)
 	{
-		this.size = size;
 		this.root = root;
+		this.size = size;
 	}
 	public BST()
 	{
-		this.size = 0;
 		this.root = null;
+		this.size = 0;
 	}
 
+	private void updateNodeHeights(TreeNode node, String side)
+	{
+		switch(side)
+		{
+			case "left":
+				if (node.parent != null && node.parent.right != null && node.parent.right.height <= node.height)
+				{
+					node.parent.height++;
+
+					if(node.parent.parent != null)
+						side = ((node.parent.parent.value > node.parent.value)? "left" : "right");
+					else side = "root";
+
+					updateNodeHeights(node.parent, side);
+				}
+
+			case "right":
+				if (node.parent != null && node.parent.left != null && node.parent.left.height <= node.height)
+				{
+					node.parent.height++;
+
+					if(node.parent.parent != null)
+						side = ((node.parent.parent.value > node.parent.value)? "left" : "right");
+					else side = "root";
+
+					updateNodeHeights(node.parent, side);
+				}
+
+			case "root":
+				return;
+		}
+	}
 	private void insert(TreeNode node, int value)
 	{
 		if (node.left != null && value < node.value)
@@ -91,9 +136,17 @@ class BST
 		else if (node.right != null && value > node.value)
 			insert(node.right, value);
 		else if (node.left == null && value < node.value)
+		{
 			node.left = new TreeNode(value);
+			node.left.parent = node;
+			updateNodeHeights(node.left, "left");
+		}
 		else if (node.right == null && value > node.value)
+		{
 			node.right = new TreeNode(value);
+			node.right.parent = node;
+			updateNodeHeights(node.right, "right");
+		}
 	}
 	public void insert(int value)
 	{
@@ -117,6 +170,11 @@ class BST
 	public BST rightSubtree()
 	{
 		return new BST(root.right, size-1);
+	}
+
+	public int tallness()
+	{
+		return root.height;
 	}
 
 	public int size()
