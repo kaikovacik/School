@@ -48,7 +48,6 @@ public class AVL_BST
 
 class BST
 {
-	int size;
 	TreeNode root;
 
 	class TreeNode
@@ -87,43 +86,21 @@ class BST
 		}
 	}
 
-	public BST(TreeNode root, int size)
+	public BST(TreeNode root)
 	{
 		this.root = root;
-		this.size = size;
 	}
 	public BST()
 	{
 		this.root = null;
-		this.size = 0;
 	}
 
-	private void updateNodeHeights(TreeNode node, String side)
+	private void updateNodeHeights(TreeNode node)
 	{
-		switch(side)
+		if(node.parent != null && node.height == node.parent.height)
 		{
-			case "root":
-				return;
-			case "left":
-				if (node.parent.right == null || node.parent.right.height < node.height)
-				{
-					node.parent.height++;
-					if(node.parent.parent != null)
-						side = (node.parent.parent.value > node.parent.value)? "left" : "right";
-					else side = "root";
-					updateNodeHeights(node.parent, side);
-					return;
-				}
-			case "right":
-				if (node.parent.left == null || node.parent.left.height < node.height)
-				{
-					node.parent.height++;
-					if(node.parent.parent != null)
-						side = (node.parent.parent.value > node.parent.value)? "left" : "right";
-					else side = "root";
-					updateNodeHeights(node.parent, side);
-					return;
-				}
+			node.parent.height++;
+			updateNodeHeights(node.parent);
 		}
 	}
 	private void insert(TreeNode node, int value)
@@ -135,46 +112,39 @@ class BST
 		else if (node.left == null && value < node.value)
 		{
 			node.left = new TreeNode(value, node);
-			updateNodeHeights(node.left, "left");
+			updateNodeHeights(node.left);
 		}
 		else if (node.right == null && value > node.value)
 		{
 			node.right = new TreeNode(value, node);
-			updateNodeHeights(node.right, "right");
+			updateNodeHeights(node.right);
 		}
 	}
 	public void insert(int value)
 	{
-		if (size == 0)
+		if (root == null)
 			root = new TreeNode(value);
 		else insert(root, value);
-		size++;
 	}
 
 	public void empty()
 	{
-		size = 0;
 		root = null;
 	}
 
 	public BST leftSubtree()
 	{
-		return new BST(root.left, size-1);
+		return new BST(root.left);
 	}
 
 	public BST rightSubtree()
 	{
-		return new BST(root.right, size-1);
+		return new BST(root.right);
 	}
 
 	public int rootHeight()
 	{
 		return (root != null)? root.height : 0;
-	}
-
-	public int size()
-	{
-		return size;
 	}
 
 	private int height(TreeNode node)
@@ -201,6 +171,6 @@ class BST
 	}
 	public String toString()
 	{
-		return (size == 0)? "tree is empty" : toString(root);
+		return (root == null)? "tree is empty" : toString(root);
 	}
 }
