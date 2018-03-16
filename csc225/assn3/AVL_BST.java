@@ -58,14 +58,6 @@ class BST
 		private TreeNode left;
 		private TreeNode right;
 
-		private TreeNode(int value, int height, TreeNode parent, TreeNode left, TreeNode right)
-		{
-			this.value = value;
-			this.height = height;
-			this.parent = parent;
-			this.left = left;
-			this.right = right;
-		}
 		// Used for new leaf nodes
 		private TreeNode(int value, TreeNode parent)
 		{
