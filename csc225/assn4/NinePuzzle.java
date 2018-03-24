@@ -37,25 +37,44 @@ import java.util.Scanner;
 import java.util.LinkedList;
 import java.io.File;
 
-public class NinePuzzle{
+public class NinePuzzle
+{
+	private class Board
+	{
+		int[][] layout;
 
-	private class Graph{
+		private Board(int[][])
+		{
+			this.layout = layout;
+		}
+
+		private toString()
+		{
+			
+		}
+	}
+
+	private class BoardGraph
+	{
 
 		private int numOfVertices;
-		private LinkedList<NinePuzzle>[] adj;
+		private LinkedList<Integer[][]>[] adj;
 
-		private Graph(int numOfVertices){
+		private BoardGraph(int numOfVertices)
+		{
 			this.numOfVertices = numOfVertices;
 			adj = (LinkedList<NinePuzzle>[]) new Object[numOfVertices];
 			for (int i = 0; i < numOfVertices; i++)
 				adj[i] = new LinkedList<>();
 		}
 
-		private void connect(int index, NinePuzzle board){
+		private void connect(int index, NinePuzzle board)
+		{
 			adj[index].add(board);
 		}
 
-		private void bfs(){
+		private void bfs()
+		{
 			boolean[] visited = new boolean[numOfVertices];
 		}
 	}
@@ -70,7 +89,8 @@ public class NinePuzzle{
 		If the board is solvable, a sequence of moves which solves the board
 		will be printed, using the printBoard function below.
 	*/
-	public static boolean SolveNinePuzzle(int[][] B){
+	public static boolean SolveNinePuzzle(int[][] B)
+	{
 		
 		/* ... Your code here ... */
 		
@@ -84,8 +104,10 @@ public class NinePuzzle{
 		board. If any other method is used (e.g. printing the board manually), the
 		submission may lose marks.
 	*/
-	public static void printBoard(int[][] B){
-		for (int i = 0; i < 3; i++){
+	public static void printBoard(int[][] B)
+	{
+		for (int i = 0; i < 3; i++)
+		{
 			for (int j = 0; j < 3; j++)
 				System.out.printf("%d ",B[i][j]);
 			System.out.println();
@@ -100,17 +122,20 @@ public class NinePuzzle{
 		 W. Myrvold and F. Ruskey, Ranking and Unranking Permutations in Linear Time,
 		 Information Processing Letters, 79 (2001) 281-284. 
 	*/
-	public static int getIndexFromBoard(int[][] B){
+	public static int getIndexFromBoard(int[][] B)
+	{
 		int i,j,tmp,s,n;
 		int[] P = new int[9];
 		int[] PI = new int[9];
-		for (i = 0; i < 9; i++){
+		for (i = 0; i < 9; i++)
+		{
 			P[i] = B[i/3][i%3];
 			PI[P[i]] = i;
 		}
 		int id = 0;
 		int multiplier = 1;
-		for(n = 9; n > 1; n--){
+		for (n = 9; n > 1; n--)
+		{
 			s = P[n-1];
 			P[n-1] = P[PI[n-1]];
 			P[PI[n-1]] = s;
@@ -124,41 +149,50 @@ public class NinePuzzle{
 		return id;
 	}
 		
-	public static int[][] getBoardFromIndex(int id){
+	public static int[][] getBoardFromIndex(int id)
+	{
 		int[] P = new int[9];
 		int i,n,tmp;
 		for (i = 0; i < 9; i++)
 			P[i] = i;
-		for (n = 9; n > 0; n--){
+		for (n = 9; n > 0; n--)
+		{
 			tmp = P[n-1];
 			P[n-1] = P[id%n];
 			P[id%n] = tmp;
 			id /= n;
 		}
 		int[][] B = new int[3][3];
-		for(i = 0; i < 9; i++)
+		for (i = 0; i < 9; i++)
 			B[i/3][i%3] = P[i];
 		return B;
 	}
 	
 
-	public static void main(String[] args){
+	public static void main(String[] args)
+	{
 		/* Code to test your implementation */
 		/* You may modify this, but nothing in this function will be marked */
 
 		
 		Scanner s;
 
-		if (args.length > 0){
+		if (args.length > 0)
+		{
 			//If a file argument was provided on the command line, read from the file
-			try{
+			try
+			{
 				s = new Scanner(new File(args[0]));
-			} catch(java.io.FileNotFoundException e){
+			} 
+			catch (java.io.FileNotFoundException e)
+			{
 				System.out.printf("Unable to open %s\n",args[0]);
 				return;
 			}
 			System.out.printf("Reading input values from %s.\n",args[0]);
-		}else{
+		}
+		else
+		{
 			//Otherwise, read from standard input
 			s = new Scanner(System.in);
 			System.out.printf("Reading input values from stdin.\n");
@@ -168,20 +202,24 @@ public class NinePuzzle{
 		double totalTimeSeconds = 0;
 		
 		//Read boards until EOF is encountered (or an error occurs)
-		while(true){
+		while (true)
+		{
 			graphNum++;
-			if(graphNum != 1 && !s.hasNextInt())
+			if (graphNum != 1 && !s.hasNextInt())
 				break;
 			System.out.printf("Reading board %d\n",graphNum);
 			int[][] B = new int[3][3];
 			int valuesRead = 0;
-			for (int i = 0; i < 3 && s.hasNextInt(); i++){
-				for (int j = 0; j < 3 && s.hasNextInt(); j++){
+			for (int i = 0; i < 3 && s.hasNextInt(); i++)
+			{
+				for (int j = 0; j < 3 && s.hasNextInt(); j++)
+				{
 					B[i][j] = s.nextInt();
 					valuesRead++;
 				}
 			}
-			if (valuesRead < 9){
+			if (valuesRead < 9)
+			{
 				System.out.printf("Board %d contains too few values.\n",graphNum);
 				break;
 			}
