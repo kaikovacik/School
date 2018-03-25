@@ -51,7 +51,7 @@ class Kwic:
 
 					# formats index with capitalized keyword
 					s = "{}{}{}".format(index_line[:key_found.start()], keyword.upper(), index_line[key_found.end():])
-					index.append("{:>{indent}}{}".format("", s, indent=indent_len))
+					index.append("{:{indent}}{}".format("", s, indent=indent_len))
 
 		return index
 

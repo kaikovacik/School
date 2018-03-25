@@ -39,49 +39,105 @@ import java.io.File;
 
 public class NinePuzzle
 {
-	private class Board
-	{
-		int[][] layout;
 
-		private Board(int[][])
-		{
-			this.layout = layout;
-		}
-
-		private toString()
-		{
-			
-		}
-	}
-
-	private class BoardGraph
+	private static class Graph
 	{
 
 		private int numOfVertices;
-		private LinkedList<Integer[][]>[] adj;
+		private int numOfEdges;
+		private LinkedList<Integer>[] adj;
 
-		private BoardGraph(int numOfVertices)
+		@SuppressWarnings("unchecked") 
+		private Graph(int numOfVertices)
 		{
 			this.numOfVertices = numOfVertices;
-			adj = (LinkedList<NinePuzzle>[]) new Object[numOfVertices];
+			this.numOfEdges = 0;
+			adj = new LinkedList[numOfVertices];
 			for (int i = 0; i < numOfVertices; i++)
-				adj[i] = new LinkedList<>();
+				adj[i] = new LinkedList<Integer>();
 		}
 
-		private void connect(int index, NinePuzzle board)
+		private void addEdge(int index1, int index2)
 		{
-			adj[index].add(board);
+			adj[index1].add(index2);
+			adj[index2].add(index1);
+			numOfEdges++;
 		}
 
-		private void bfs()
-		{
-			boolean[] visited = new boolean[numOfVertices];
-		}
 	}
 
 	//The total number of possible boards is 9! = 1*2*3*4*5*6*7*8*9 = 362880
 	public static final int NUM_BOARDS = 362880;
 
+	public static Graph BuildNinePuzzleGraph()
+	{
+		int[][] board;
+		Graph graph = new Graph(NUM_BOARDS);
+
+		for (int i = 0; i < NUM_BOARDS; i++)
+		{
+			board = getBoardFromIndex(i);
+			int n = board.length;
+			int x = 0;
+			int y = 0;
+			getCoordinates:
+			for (int j = 0; i < n; i++)
+			{
+				for (int k = 0; j < n; j++)
+				{
+					if (board[i][j] == 0)
+					{
+						x = j;
+						y = i;
+						break getCoordinates;
+					}
+				}
+			}
+
+			if (y > 0)
+			{
+				// Move tile down
+				int[][] tempB = board.clone();
+				tempB[y][x] = tempB[y-1][x];
+				tempB[y-1][x] = 0;
+
+				// Add edge
+				graph.addEdge(getIndexFromBoard(board), getIndexFromBoard(tempB));
+			}
+			if (y < n-1)
+			{
+				// Move tile up
+				int[][] tempB = board.clone();
+				tempB[y][x] = tempB[y+1][x];
+				tempB[y+1][x] = 0;
+
+				// Add edge
+				graph.addEdge(getIndexFromBoard(board), getIndexFromBoard(tempB));
+			}
+			if (x > 0)
+			{
+				// Move tile right
+				int[][] tempB = board.clone();
+				tempB[y][x] = tempB[y][x-1];
+				tempB[y][x-1] = 0;
+
+				// Add edge
+				graph.addEdge(getIndexFromBoard(board), getIndexFromBoard(tempB));				
+			}
+			if(x < n-1)
+			{
+				// Move tile left
+				int[][] tempB = board.clone();
+				tempB[y][x] = tempB[y][x+1];
+				tempB[y][x+1] = 0;
+
+				// Add edge
+				graph.addEdge(getIndexFromBoard(board), getIndexFromBoard(tempB));
+			}
+		}
+
+		return graph;
+	}
 
 	/*  SolveNinePuzzle(B)
 		Given a valid 9-puzzle board (with the empty space represented by the 
@@ -91,9 +147,15 @@ public class NinePuzzle
 	*/
 	public static boolean SolveNinePuzzle(int[][] B)
 	{
-		
-		/* ... Your code here ... */
-		
+		Graph puzzle_graph = BuildNinePuzzleGraph();
+		int[][] solvedB = {	{1,2,3},
+							{4,5,6},
+							{7,8,0}	};
+		// BFS from B until solvedB -> path1
+		// BFS from solvedB until B -> path2
+		// path = [c for c in path1 if c in path2]
+		// print path
+
 		return false;
 		
 	}
