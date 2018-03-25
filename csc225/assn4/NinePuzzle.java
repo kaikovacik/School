@@ -34,34 +34,58 @@
 */
 
 import java.util.Scanner;
-import java.util.LinkedList;
+import java.util.*;
 import java.io.File;
 
 public class NinePuzzle
 {
+<<<<<<< HEAD
+=======
+	private class Board
+	{
+		int[][] layout;
+
+		private Board(int[][] layout)
+		{
+			this.layout = layout;
+		}
+	}
+>>>>>>> 7aa7ac47903ffdddf463e0fcb63747ec6065dc7d
 
 	private static class Graph
 	{
 
 		private int numOfVertices;
+<<<<<<< HEAD
 		private int numOfEdges;
+=======
+>>>>>>> 7aa7ac47903ffdddf463e0fcb63747ec6065dc7d
 		private LinkedList<Integer>[] adj;
 
 		@SuppressWarnings("unchecked") 
 		private Graph(int numOfVertices)
 		{
 			this.numOfVertices = numOfVertices;
+<<<<<<< HEAD
 			this.numOfEdges = 0;
 			adj = new LinkedList[numOfVertices];
 			for (int i = 0; i < numOfVertices; i++)
 				adj[i] = new LinkedList<Integer>();
+=======
+			LinkedList<Integer>[] adj = new LinkedList[numOfVertices];
+
+>>>>>>> 7aa7ac47903ffdddf463e0fcb63747ec6065dc7d
 		}
 
 		private void addEdge(int index1, int index2)
 		{
+<<<<<<< HEAD
 			adj[index1].add(index2);
 			adj[index2].add(index1);
 			numOfEdges++;
+=======
+			//adj[index].add(board);
+>>>>>>> 7aa7ac47903ffdddf463e0fcb63747ec6065dc7d
 		}
 
 	}
