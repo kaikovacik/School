@@ -34,7 +34,7 @@
 */
 
 import java.util.Scanner;
-import java.util.LinkedList;
+import java.util.*;
 import java.io.File;
 
 public class NinePuzzle
@@ -43,14 +43,9 @@ public class NinePuzzle
 	{
 		int[][] layout;
 
-		private Board(int[][])
+		private Board(int[][] layout)
 		{
 			this.layout = layout;
-		}
-
-		private toString()
-		{
-			
 		}
 	}
 
@@ -58,19 +53,18 @@ public class NinePuzzle
 	{
 
 		private int numOfVertices;
-		private LinkedList<Integer[][]>[] adj;
+		private LinkedList<Integer>[] adj;
 
 		private BoardGraph(int numOfVertices)
 		{
 			this.numOfVertices = numOfVertices;
-			adj = (LinkedList<NinePuzzle>[]) new Object[numOfVertices];
-			for (int i = 0; i < numOfVertices; i++)
-				adj[i] = new LinkedList<>();
+			LinkedList<Integer>[] adj = new LinkedList[numOfVertices];
+
 		}
 
 		private void connect(int index, NinePuzzle board)
 		{
-			adj[index].add(board);
+			//adj[index].add(board);
 		}
 
 		private void bfs()
