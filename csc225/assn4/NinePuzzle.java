@@ -1,3 +1,9 @@
+/*
+ * Kai Kovacik
+ * V00880027
+ * March 25, 2018
+ */
+
 /* NinePuzzle.java
    CSC 225 - Spring 2017
    Assignment 4 - Template for the 9-puzzle
@@ -34,61 +40,70 @@
 */
 
 import java.util.Scanner;
-import java.util.*;
+import java.util.LinkedList;
 import java.io.File;
 
 public class NinePuzzle
 {
+
+	//The total number of possible boards is 9! = 1*2*3*4*5*6*7*8*9 = 362880
+	public static final int NUM_BOARDS = 362880;
 
 	private static class Graph
 	{
 
 		private int numOfVertices;
 		private int numOfEdges;
-		private LinkedList<Integer>[] adj;
+		private LinkedList<Integer>[] adjacency;
 
 		@SuppressWarnings("unchecked") 
 		private Graph(int numOfVertices)
 		{
 			this.numOfVertices = numOfVertices;
 			this.numOfEdges = 0;
-			adj = new LinkedList[numOfVertices];
+			adjacency = new LinkedList[numOfVertices];
 			for (int i = 0; i < numOfVertices; i++)
-				adj[i] = new LinkedList<Integer>();
+				adjacency[i] = new LinkedList<Integer>();
 		}
 
 		private void addEdge(int index1, int index2)
 		{
-			adj[index1].add(index2);
-			adj[index2].add(index1);
+			adjacency[index1].add(index2);
 			numOfEdges++;
 		}
 
 	}
 
-	//The total number of possible boards is 9! = 1*2*3*4*5*6*7*8*9 = 362880
-	public static final int NUM_BOARDS = 362880;
+	private static int[][] copyArray(int[][] arr)
+	{
+		int[][] cpy = new int[arr.length][arr.length];
+		for (int i = 0; i < arr.length; i++)
+			cpy[i] = arr[i].clone();
 
-	public static Graph BuildNinePuzzleGraph()
+		return cpy;
+	}
+
+	private static Graph BuildNPuzzleGraph(int size)
 	{
 		int[][] board;
-		Graph graph = new Graph(NUM_BOARDS);
+		Graph graph = new Graph(size);
+		int x = 0;
+		int y = 0;
 
-		for (int i = 0; i < NUM_BOARDS; i++)
+		for (int i = 0; i < graph.numOfVertices; i++)
 		{
 			board = getBoardFromIndex(i);
 			int n = board.length;
-			int x = 0;
-			int y = 0;
+			// Find coordinates of space
 			getCoordinates:
-			for (int j = 0; i < n; i++)
+			for (int j = 0; j < n; j++)
 			{
-				for (int k = 0; j < n; j++)
+				for (int k = 0; k < n; k++)
 				{
-					if (board[i][j] == 0)
+					if (board[j][k] == 0)
 					{
-						x = j;
-						y = i;
+						x = k;
+						y = j;
 						break getCoordinates;
 					}
 				}
@@ -96,47 +111,96 @@ public class NinePuzzle
 
 			if (y > 0)
 			{
-				// Move tile down
-				int[][] tempB = board.clone();
+				// Move tile up
+				int[][] tempB = copyArray(board);
 				tempB[y][x] = tempB[y-1][x];
 				tempB[y-1][x] = 0;
 
-				// Add edge
+				// Connect move in graph
 				graph.addEdge(getIndexFromBoard(board), getIndexFromBoard(tempB));
 			}
 			if (y < n-1)
 			{
-				// Move tile up
-				int[][] tempB = board.clone();
+				// Move tile down
+				int[][] tempB = copyArray(board);
 				tempB[y][x] = tempB[y+1][x];
 				tempB[y+1][x] = 0;
 
-				// Add edge
+				// Connect move in graph
 				graph.addEdge(getIndexFromBoard(board), getIndexFromBoard(tempB));
 			}
 			if (x > 0)
 			{
-				// Move tile right
-				int[][] tempB = board.clone();
+				// Move tile left
+				int[][] tempB = copyArray(board);
 				tempB[y][x] = tempB[y][x-1];
 				tempB[y][x-1] = 0;
 
-				// Add edge
+				// Connect move in graph
 				graph.addEdge(getIndexFromBoard(board), getIndexFromBoard(tempB));				
 			}
 			if(x < n-1)
 			{
-				// Move tile left
-				int[][] tempB = board.clone();
+				// Move tile right
+				int[][] tempB = copyArray(board);
 				tempB[y][x] = tempB[y][x+1];
 				tempB[y][x+1] = 0;
 
-				// Add edge
+				// Connect move in graph
 				graph.addEdge(getIndexFromBoard(board), getIndexFromBoard(tempB));
 			}
 		}
 
 		return graph;
+	}
+
+	private static LinkedList<Integer> BFSpath(Graph G, int[][] start, int[][] end)
+	{
+		int start_index = getIndexFromBoard(start);
+		int end_index = getIndexFromBoard(end);
+
+		LinkedList<Integer> queue = new LinkedList<>();
+		boolean[] visited = new boolean[G.numOfVertices];
+		int[] edgeTo = new int[G.numOfVertices];
+
+		queue.add(start_index);
+		visited[start_index] = true;
+		searchForEnd:
+		while (!queue.isEmpty())
+		{
+			int curr = queue.poll();
+
+			for (int neighbor : G.adjacency[curr])
+			{
+				// Stop if end is reached
+				if (neighbor == end_index)
+				{
+					edgeTo[neighbor] = curr;
+					visited[neighbor] = true;
+					break searchForEnd;
+				}
+				else if (!visited[neighbor])
+				{
+					queue.add(neighbor);
+					edgeTo[neighbor] = curr;
+					visited[neighbor] = true;
+				}
+			}
+		}
+
+		// Return path or null if no path was found
+		if (!visited[end_index])
+			return null;
+		else
+		{
+			LinkedList<Integer> path = new LinkedList<Integer>();
+
+			for (int i = end_index; i != start_index; i = edgeTo[i])
+				path.push(i);
+			path.push(start_index);
+
+			return path;
+		}
 	}
 
 	/*  SolveNinePuzzle(B)
@@ -147,17 +211,20 @@ public class NinePuzzle
 	*/
 	public static boolean SolveNinePuzzle(int[][] B)
 	{
-		Graph puzzle_graph = BuildNinePuzzleGraph();
-		int[][] solvedB = {	{1,2,3},
-							{4,5,6},
-							{7,8,0}	};
-		// BFS from B until solvedB -> path1
-		// BFS from solvedB until B -> path2
-		// path = [c for c in path1 if c in path2]
-		// print path
+		// Build game state graph
+		Graph game_states = BuildNPuzzleGraph(NUM_BOARDS);
+		// Find path from B to solution (getBoardFromIndex(0))
+		LinkedList<Integer> path = BFSpath(game_states, B, getBoardFromIndex(0));
 
-		return false;
-		
+		if (path == null)
+			return false;
+		else
+		{
+			// Print path
+			for (int step : path)
+				printBoard(getBoardFromIndex(step));
+			return true;
+		}
 	}
 	
 	/*  printBoard(B)
@@ -176,7 +243,6 @@ public class NinePuzzle
 		}
 		System.out.println();
 	}
-	
 	
 	/* Board/Index conversion functions
 	   These should be treated as black boxes (i.e. don't modify them, don't worry about
@@ -285,10 +351,12 @@ public class NinePuzzle
 				System.out.printf("Board %d contains too few values.\n",graphNum);
 				break;
 			}
+			printBoard(B);
 			System.out.printf("Attempting to solve board %d...\n",graphNum);
 			long startTime = System.currentTimeMillis();
 			boolean isSolvable = SolveNinePuzzle(B);
 			long endTime = System.currentTimeMillis();
+
 			totalTimeSeconds += (endTime-startTime)/1000.0;
 			
 			if (isSolvable)
@@ -297,8 +365,7 @@ public class NinePuzzle
 				System.out.printf("Board %d: Not solvable.\n",graphNum);
 		}
 		graphNum--;
-		System.out.printf("Processed %d board%s.\n Average Time (seconds): %.2f\n",graphNum,(graphNum != 1)?"s":"",(graphNum>1)?totalTimeSeconds/graphNum:0);
-
+		System.out.printf("Processed %d board%s.\n Average Time (seconds): %.2f\n",graphNum,(graphNum != 1)?"s":"",(graphNum>1)?totalTimeSeconds/graphNum:totalTimeSeconds);
 	}
 
 }
