@@ -1,0 +1,3 @@
+Since in one of three cases, the red count increases by one and during all cases, the size increases by one, the percent of red nodes in the tree should optimally be around 25%.
+
+Upon running the 100 trial experiment, the average percent of red nodes in all of the trees was very close to 25%.

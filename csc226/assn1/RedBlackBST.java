@@ -1,5 +1,6 @@
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.Random;
 import java.io.File;
 
 public class RedBlackBST 
@@ -9,7 +10,7 @@ public class RedBlackBST
     private static final boolean BLACK = false;
 
     private Node root;     // root of the BST
-    public float numOfRed;
+    private int numOfRed;  // number of red nodes in the tree
 
     // BST helper node data type
     private class Node 
@@ -18,20 +19,18 @@ public class RedBlackBST
         private Node left, right;  // links to left and right subtrees
         private boolean color;     // color of parent link
         private int size;          // subtree count
-        //private int sizeRed;       // subtree red node count
 
-        public Node(int key, boolean color, int size/*, int sizeRed*/) 
+        public Node(int key, boolean color, int size) 
         {
             this.key = key;
             this.color = color;
             this.size = size;
-            //this.sizeRed = sizeRed;
         }
     }
 
 	public RedBlackBST() 
     {
-        numOfRed = 0.0f;
+        this.numOfRed = 0;
 	}
    /***************************************************************************
     *  Node helper methods.
@@ -43,29 +42,30 @@ public class RedBlackBST
         return x.color == RED;
     }
     
-    private int getNumOfRed(Node x)
+    private int findNumOfRed(Node x)
     {
         if (x == null)
             return 0;
         else if (isRed(x))
-            return 1 + getNumOfRed(x.left) + getNumOfRed(x.right);
+            return 1 + findNumOfRed(x.left) + findNumOfRed(x.right);
         else
-            return getNumOfRed(x.left) + getNumOfRed(x.right);
+            return findNumOfRed(x.left) + findNumOfRed(x.right);
     }
 
     /**
-     * Returns the number of red-designated, key-value pairs in this symbol table.
-     * @return the number of red-designated, key-value pairs in this symbol table
+     * Finds the number of red nodes by recursively traversing the tree.
+     * Used primarily for checking the integrity of "numOfRed"
+     * @return the number of red-designated nodes in the tree.
      */
-    public int getNumOfRed()
+    public int findNumOfRed()
     {
-        return getNumOfRed(root);
+        return findNumOfRed(root);
     }
 
     // return the percent of red nodes in the tree
     public float percentRed()
     {
-        return numOfRed/root.size*100.0f;
+        return ((float)numOfRed)/root.size*100.0f;
     }
 
     // number of node in subtree rooted at x; 0 if x is null
@@ -92,6 +92,11 @@ public class RedBlackBST
         return root == null;
     }
 
+    public int getNumOfRed()
+    {
+    	return numOfRed;
+    }
+
    /***************************************************************************
     *  Red-black tree insertion.
     ***************************************************************************/
@@ -109,14 +114,21 @@ public class RedBlackBST
     public void put(int key) 
     {
         root = put(root, key);
-        root.color = BLACK;
-        numOfRed = getNumOfRed();
+        if (isRed(root)) 
+       	{
+        	numOfRed--; 
+       		root.color = BLACK;
+       	}	   
     }
 
     // insert the key-value pair in the subtree rooted at h
     private Node put(Node h, int key) 
     { 
-        if (h == null) return new Node(key, RED, 1/*, 1*/);
+        if (h == null) 
+        {
+        	numOfRed++;
+        	return new Node(key, RED, 1);
+        }
 
         int cmp = key - h.key;
         if      (cmp < 0) h.left  = put(h.left,  key); 
@@ -129,7 +141,6 @@ public class RedBlackBST
         if (isRed(h.left)  &&  isRed(h.right))     flipColors(h);
 
         h.size = size(h.left) + size(h.right) + 1;
-        //h.sizeRed = sizeRed(h.left) + sizeRed(h.right) + ((isRed(h))? 1 : 0);
 
         return h;
     }
@@ -148,9 +159,7 @@ public class RedBlackBST
         x.color = x.right.color;
         x.right.color = RED;
         x.size = h.size;
-        //x.sizeRed = sizeRed(x.left) + sizeRed(x.right) + ((isRed(x))? 1 : 0);
         h.size = size(h.left) + size(h.right) + 1;
-        //h.sizeRed = sizeRed(h.left) + sizeRed(h.right) + ((isRed(h))? 1 : 0);
         return x;
     }
 
@@ -164,9 +173,7 @@ public class RedBlackBST
         x.color = x.left.color;
         x.left.color = RED;
         x.size = h.size;
-        //x.sizeRed = sizeRed(x.left) + sizeRed(x.right) + ((isRed(x))? 1 : 0);
         h.size = size(h.left) + size(h.right) + 1;
-        //h.sizeRed = sizeRed(h.left) + sizeRed(h.right) + ((isRed(h))? 1 : 0);
         return x;
     }
 
@@ -180,7 +187,7 @@ public class RedBlackBST
         h.color = !h.color;
         h.left.color = !h.left.color;
         h.right.color = !h.right.color;
-        //h.sizeRed--;
+        numOfRed--;
     }
 
     /**
@@ -190,30 +197,49 @@ public class RedBlackBST
      */
     public static void main(String[] args) 
     { 
-		// RedBlackBST st = new RedBlackBST();
-		// st.put(0);
-		// st.put(1);
-		// st.put(2);
-		// st.put(3);
-		// st.put(4);
-		// st.put(5);
-		// System.out.printf("Size of tree is %d\n", st.size());
         RedBlackBST tree = new RedBlackBST();
 
-        try
+        if (args.length > 0)
         {
-            Scanner file = new Scanner(new File(args[0]));
+	        try
+	        {
+	            Scanner file = new Scanner(new File(args[0]));
 
-            while(file.hasNextInt()) 
-                tree.put(file.nextInt());
-        }
-        catch (Exception e)
-        {
-            System.out.println("I need to deal with this");        
-        }
-        System.out.println("Size is: " + tree.size());
-        System.out.println("SizeRed is: " + tree.numOfRed);
-        System.out.println("Percent red is: " + tree.percentRed());
+	            while(file.hasNextInt()) 
+	                tree.put(file.nextInt());
+	        }
+	        catch (Exception e)
+	        {
+	            System.out.println("Unable to parse file");        
+	        }
+
+	       	System.out.println("Reading input values from " + args[0]);
+        	System.out.printf("Percent of Red Nodes: %.6f\n", tree.percentRed());
+	    }
+	    else
+	    {
+	    	Random rand = new Random();
+	    	for (int i = 0; i < 100; i++)
+	    	{
+	    		for (int j = 0; j < 10000; j++)
+	    			tree.put(rand.nextInt(10001));
+	    		System.out.printf("Percent of Red Nodes for 10^4: %.6f\n", tree.percentRed());
+
+	    		tree = new RedBlackBST();
+
+	    		for (int j = 0; j < 100000; j++)
+	    			tree.put(rand.nextInt(100001));
+	    		System.out.printf("Percent of Red Nodes for 10^5: %.6f\n", tree.percentRed());
+
+	    		tree = new RedBlackBST();
+
+	    		for (int j = 0; j < 1000000; j++)
+					tree.put(rand.nextInt(1000001));
+				System.out.printf("Percent of Red Nodes for 10^6: %.6f\n", tree.percentRed());
+
+				tree = new RedBlackBST();
+	    	}
+	    }
     }
 }
 
