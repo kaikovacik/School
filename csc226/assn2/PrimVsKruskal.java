@@ -97,21 +97,15 @@ public class PrimVsKruskal
    public static void main(String[] args) 
    {
 		Scanner s;
-		if (args.length > 0)
-		{
-			try
-			{
+       if (args.length > 0){
+           try{
 				s = new Scanner(new File(args[0]));
-			} 
-			catch(java.io.FileNotFoundException e)
-			{
+           } catch(java.io.FileNotFoundException e){
 				System.out.printf("Unable to open %s\n",args[0]);
 				return;
 			}
 			System.out.printf("Reading input values from %s.\n",args[0]);
-		}
-		else
-		{
+       }else{
 			s = new Scanner(System.in);
 			System.out.printf("Reading input values from stdin.\n");
 		}
@@ -119,33 +113,26 @@ public class PrimVsKruskal
 		int n = s.nextInt();
 		double[][] G = new double[n][n];
 		int valuesRead = 0;
-		for (int i = 0; i < n && s.hasNextDouble(); i++)
-		{
-			for (int j = 0; j < n && s.hasNextDouble(); j++)
-			{
+       for (int i = 0; i < n && s.hasNextDouble(); i++){
+           for (int j = 0; j < n && s.hasNextDouble(); j++){
 				G[i][j] = s.nextDouble();
-				if (i == j && G[i][j] != 0.0) 
-				{
+               if (i == j && G[i][j] != 0.0) {
 					System.out.printf("Adjacency matrix contains self-loops.\n");
 					return;
 				}
-				if (G[i][j] < 0.0) 
-				{
+               if (G[i][j] < 0.0) {
 					System.out.printf("Adjacency matrix contains negative values.\n");
 					return;
 				}
-				if (j < i && G[i][j] != G[j][i]) 
-				{
+               if (j < i && G[i][j] != G[j][i]) {
 					System.out.printf("Adjacency matrix is not symmetric.\n");
 					return;
 				}
-
 				valuesRead++;
 			}
 		}
 		
-		if (valuesRead < n*n)
-		{
+       if (valuesRead < n*n){
 			System.out.printf("Adjacency matrix for the graph contains too few values.\n");
 			return;
 		}	
