@@ -69,7 +69,9 @@ public class PrimVsKruskal
 		for (int t = 0; t < n; t++)
 		{	
 			// Kruskal's
-			Edge kruskal_edge = new Edge(1, 2, 0.5);
+			Edge kruskal_edge;
+
+			System.out.println((new Edge(1,1,1.0)).toString().equals((new Edge(1,1,1.0)).toString()));
 
 			double smallest_weight = Double.POSITIVE_INFINITY;
 			for (int i = 0; i < n; i++)
@@ -78,8 +80,7 @@ public class PrimVsKruskal
 					if (G[i][j] < smallest_weight)
 					{
 						smallest_weight = G[i][j];
-						// kruskal_edge = new Edge(i, j, smallest_weight);
-						// System.out.println(kruskal_edge.equals(new Edge(j, i, smallest_weight)));
+						kruskal_edge = new Edge(i, j, smallest_weight);
 					}
 				}	
 		}
