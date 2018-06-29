@@ -209,7 +209,7 @@ class Graph
 			int v1 = kruskal_step.either();
 			int v2 = kruskal_step.other(v1);
 
-			if (!createsCycleInKruskalMST(kruskal_step))
+			if (!createsCycleInKruskalMST(kruskal_step) && !kruskal_mst_has_edge[toInteger(kruskal_step)])
 			{
 				kruskal_mst.union(v1, v2);
 				kruskal_mst_has_edge[toInteger(kruskal_step)] = true;
@@ -233,7 +233,7 @@ class Graph
 
 	/* 	primStep()
 		Returns next step in Prim's algorithm
-		Returns null if complete.
+		Returns null if no steps remain.
 	*/
 	public Edge primStep()
 	{
