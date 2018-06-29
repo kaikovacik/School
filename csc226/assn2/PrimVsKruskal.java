@@ -40,7 +40,6 @@ import java.io.File;
 //Do not change the name of the PrimVsKruskal class
 public class PrimVsKruskal
 {
-
 	/* PrimVsKruskal(G)
 		Given an adjacency matrix for connected graph G, with no self-loops or parallel edges,
 		determine if the minimum spanning tree of G found by Prim's algorithm is equal to 
@@ -138,6 +137,7 @@ public class PrimVsKruskal
         System.out.printf("Does Prim MST = Kruskal MST? %b\n", pvk);
     }
 }
+
 
 class Graph 
 {
