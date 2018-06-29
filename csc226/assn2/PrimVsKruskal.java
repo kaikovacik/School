@@ -32,9 +32,10 @@
    R. Little - 06/22/2018
 */
 
- import edu.princeton.cs.algs4.*;
- import java.util.Scanner;
- import java.io.File;
+import edu.princeton.cs.algs4.*;
+import org.ietf.jgss.MessageProp;
+import java.util.Scanner;
+import java.io.File;
 
 //Do not change the name of the PrimVsKruskal class
 public class PrimVsKruskal
@@ -52,37 +53,17 @@ public class PrimVsKruskal
 	*/
 	static boolean PrimVsKruskal(double[][] G)
 	{
-		int n = G.length;
-		boolean[] kruskal_visited = new boolean[n];
-		boolean[] prim_visited = new boolean[n];
+		Graph graph = new Graph(G);
+		Edge kruskal_step = graph.kruskalStep();
+		Edge prim_step = graph.primStep();
 
-		// for n times:
-		// 	ps = Make a step with Prim's
-		// 	ks = Make a step with Kruskal's
-		// 	if edge from Prim's makes cycle in Kruskal tree
-		//		return false
-		// 	if edge from Kruskal's makes cycles in Prim tree
-		// 		return false
-		//
-		// return true
+		while (kruskal_step != null && prim_step != null)
+		{
+			if (kruskal_step == null || prim_step == null) return false;
+			if (graph.createsCycleInPrimMST(kruskal_step) || graph.createsCycleInKruskalMST(prim_step)) return false;
 
-		for (int t = 0; t < n; t++)
-		{	
-			// Kruskal's
-			Edge kruskal_edge;
-
-			System.out.println((new Edge(1,1,1.0)).toString().equals((new Edge(1,1,1.0)).toString()));
-
-			double smallest_weight = Double.POSITIVE_INFINITY;
-			for (int i = 0; i < n; i++)
-				for(int j = i; j < n; j++)
-				{
-					if (G[i][j] < smallest_weight)
-					{
-						smallest_weight = G[i][j];
-						kruskal_edge = new Edge(i, j, smallest_weight);
-					}
-				}	
+			kruskal_step = graph.kruskalStep();
+			prim_step = graph.primStep();
 		}
 
 		return true;
@@ -97,15 +78,21 @@ public class PrimVsKruskal
    public static void main(String[] args) 
    {
 		Scanner s;
-       if (args.length > 0){
-           try{
+	 	if (args.length > 0)
+	   	{
+		   	try
+		   	{
 				s = new Scanner(new File(args[0]));
-           } catch(java.io.FileNotFoundException e){
+		   	} 
+		   	catch(java.io.FileNotFoundException e)
+			{
 				System.out.printf("Unable to open %s\n",args[0]);
 				return;
 			}
 			System.out.printf("Reading input values from %s.\n",args[0]);
-       }else{
+		}
+		else
+		{
 			s = new Scanner(System.in);
 			System.out.printf("Reading input values from stdin.\n");
 		}
@@ -113,26 +100,36 @@ public class PrimVsKruskal
 		int n = s.nextInt();
 		double[][] G = new double[n][n];
 		int valuesRead = 0;
-       for (int i = 0; i < n && s.hasNextDouble(); i++){
-           for (int j = 0; j < n && s.hasNextDouble(); j++){
-				G[i][j] = s.nextDouble();
-               if (i == j && G[i][j] != 0.0) {
-					System.out.printf("Adjacency matrix contains self-loops.\n");
-					return;
-				}
-               if (G[i][j] < 0.0) {
-					System.out.printf("Adjacency matrix contains negative values.\n");
-					return;
-				}
-               if (j < i && G[i][j] != G[j][i]) {
-					System.out.printf("Adjacency matrix is not symmetric.\n");
-					return;
-				}
-				valuesRead++;
+		for (int i = 0; i < n && s.hasNextDouble(); i++)
+		{
+			for (int j = 0; j < n && s.hasNextDouble(); j++)
+			{
+			G[i][j] = s.nextDouble();
+
+			if (i == j && G[i][j] != 0.0) 
+			{
+				System.out.printf("Adjacency matrix contains self-loops.\n");
+				return;
 			}
+			if (G[i][j] < 0.0) 
+			{
+				System.out.printf("Adjacency matrix contains negative values.\n");
+				return;
+			}
+			if (j < i && G[i][j] != G[j][i]) 
+			{
+				System.out.printf("Adjacency matrix is not symmetric.\n");
+				return;
+			}
+
+			valuesRead++;
+			}		
 		}
 		
-       if (valuesRead < n*n){
+		s.close();
+		
+	   	if (valuesRead < n*n)
+	   	{
 			System.out.printf("Adjacency matrix for the graph contains too few values.\n");
 			return;
 		}	
@@ -140,4 +137,218 @@ public class PrimVsKruskal
         boolean pvk = PrimVsKruskal(G);
         System.out.printf("Does Prim MST = Kruskal MST? %b\n", pvk);
     }
+}
+
+class Graph 
+{
+	// General variables
+	private double[][] adjacency_matrix;
+	private int size;
+
+	// Kruskal variables
+	private UF kruskal_mst;
+	private MinPQ<Edge> kruskal_pq;
+	private boolean[] kruskal_mst_has_edge;
+
+	// Prim variables4
+	private boolean[] prim_visited;
+	private boolean[] prim_mst_has_edge;
+	private Bag<Integer> cloud;
+
+	/*	PLEASE NOTE: 
+		If cloud is a linkedList rather than Bag, then the output 
+		is the same as Rich's since iteration is no longer arbitrary.
+		I chose to use Bag because I am unsure as to whether or not we
+		are allowed to include Java.util or not and I do not want to 
+		implement it myself (especially since Bag does get the job done).
+	*/
+
+	public Graph(double[][] adjacency_matrix)
+	{
+		// Graph
+		this.adjacency_matrix = adjacency_matrix;
+		this.size = adjacency_matrix.length;
+
+		// Kruskal
+		this.kruskal_mst = new UF(size);
+		this.kruskal_pq = new MinPQ<Edge>();
+		this.kruskal_mst_has_edge = new boolean[Integer.parseInt("" + size + size)];
+
+		// Prim
+		this.prim_visited = new boolean[size];
+		this.prim_mst_has_edge = new boolean[Integer.parseInt("" + size + size)];
+		this.cloud = new Bag<Integer>();
+
+		// Initialization
+		cloud.add(0);
+		prim_visited[0] = true;	
+	}
+
+	/* 	kruskalStep()
+		Returns next step in Kruskal's algorithm.
+		Returns null if no steps remain.
+	*/
+	public Edge kruskalStep()
+	{
+		// If first iteration, then construct pq
+		if (kruskal_mst.count() == size)
+		{	
+			for (int i = 0; i < size; i++)
+			{
+				for (int j = i; j < size; j++)
+				{
+					if (adjacency_matrix[i][j] > 0) kruskal_pq.insert(new Edge(i, j, adjacency_matrix[i][j]));
+				}
+			}
+		}
+
+		// Find and return next step
+		while (!kruskal_pq.isEmpty())
+		{
+			Edge kruskal_step = kruskal_pq.delMin();
+			int v1 = kruskal_step.either();
+			int v2 = kruskal_step.other(v1);
+
+			if (!createsCycleInKruskalMST(kruskal_step))
+			{
+				kruskal_mst.union(v1, v2);
+				kruskal_mst_has_edge[toInteger(kruskal_step)] = true;
+				return kruskal_step;
+			}
+		}
+
+		return null;
+	}
+
+	/* 	toInteger()
+		Converts Edge type to integer for indexing 
+		(inneficient hashing on memory but oh well).
+	*/
+	private int toInteger(Edge e)
+	{
+		int v1 = e.either();
+		int v2 = e.other(v1);
+		return Integer.parseInt((v1 <= v2)? ("" + v1 + v2) : ("" + v2 + v1));
+	}
+
+	/* 	primStep()
+		Returns next step in Prim's algorithm
+		Returns null if complete.
+	*/
+	public Edge primStep()
+	{
+		if (cloud.size() < size)
+		{
+			MinPQ<Edge> prim_pq = new MinPQ<>();
+
+			for (int i : cloud)
+			{
+				for (int j = 0; j < size; j++)
+				{
+					if (adjacency_matrix[i][j] > 0)
+					{
+						Edge e = new Edge(i, j, adjacency_matrix[i][j]);
+						int v1 = e.either();
+						int v2 = e.other(v1);
+
+						// If e doesn't create a cycle, then add it to pq
+						if (!createsCycleInPrimMST(e) && !prim_mst_has_edge[toInteger(e)]) prim_pq.insert(e);
+					}
+				}
+			}
+
+			Edge prim_step = prim_pq.delMin();
+			int v1 = prim_step.either();
+			int v2 = prim_step.other(v1);
+
+			prim_mst_has_edge[toInteger(prim_step)] = true;
+			prim_visited[(prim_visited[v1])? v2 : v1] = true;
+			cloud.add((prim_visited[v1])? v2 : v1);
+
+			return prim_step;
+		}
+
+		return null;
+	}
+
+	/* 	createsCycleInKruskalMST()
+		Returns whether adding a given edge would
+		hypothetically create a cycle in the Kruskal MST.
+	*/
+	public boolean createsCycleInKruskalMST(Edge e)
+	{
+		int v1 = e.either();
+		int v2 = e.other(v1);
+		return kruskal_mst.connected(v1, v2) && !kruskal_mst_has_edge[toInteger(e)];
+	}
+
+	/* 	createsCycleInPrimMST()
+		Returns whether adding a given edge would
+		hypothetically create a cycle in the Prim MST.
+	*/
+	public boolean createsCycleInPrimMST(Edge e)
+	{
+		int v1 = e.either();
+		int v2 = e.other(v1);
+		return prim_visited[v1] && prim_visited[v2] && !prim_mst_has_edge[toInteger(e)];
+	}
+
+	/* 	kruskal()
+		Completely runs Kruskal's algorithm
+		and returns the set of edges in MST.
+	*/
+	public Bag<Edge> kruskal()
+	{
+		if (kruskal_mst.count() != size) resetAlgs(); 
+
+		Bag<Edge> edges = new Bag<>();
+
+		Edge step = kruskalStep();
+		while(step != null)
+		{
+			edges.add(step);
+			step = kruskalStep();
+		} 
+
+		return edges;
+	}
+
+	/* 	prim()
+		Completely runs Prim's algorithm
+		and returns the set of edges in MST.
+	*/
+	public Bag<Edge> prim()
+	{
+		if (cloud.size() != 1) resetAlgs(); 
+
+		Bag<Edge> edges = new Bag<>();
+
+		Edge step = primStep();
+		while(step != null)
+		{
+			edges.add(step);
+			step = primStep();
+		} 
+
+		return edges;
+	}
+
+	/* 	resetAlgs()
+		Internal factory method that resets the instance.
+	*/
+	private void resetAlgs()
+	{
+		// Kruskal variables
+		kruskal_mst = new UF(size);
+		kruskal_pq = new MinPQ<Edge>();
+
+		// Prim variables
+		prim_visited = new boolean[size];
+		prim_mst_has_edge = new boolean[Integer.parseInt("" + size + size)];
+		cloud = new Bag<Integer>();
+
+		// Initialization
+		cloud.add(0);
+		prim_visited[0] = true;
+	}
 }
