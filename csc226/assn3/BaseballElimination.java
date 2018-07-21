@@ -30,6 +30,7 @@
 
 
    R. Little - 07/13/2018
+   Also K. Kovacik Helped - 07/20/2018 (last minute, I know)
 */
 
 import edu.princeton.cs.algs4.*;
@@ -44,7 +45,6 @@ public class BaseballElimination {
 	private int n;
 	private Team[] teams;
 	private int[][] versus;
-	private FordFulkerson[] results;
 
 	/* BaseballElimination(s)
 		Given an input stream connected to a collection of baseball division
@@ -58,7 +58,6 @@ public class BaseballElimination {
 		this.n = s.nextInt();
 		this.teams = new Team[n];
 		this.versus = new int[n][n];
-		this.results = new FordFulkerson[n];
 
 		// Read input
 		for (int i = 0; i < n; i++) {
@@ -73,26 +72,51 @@ public class BaseballElimination {
 		}
 	}
 
-	private boolean isTriviallyEliminated(Team team) { 
-		for (Team cmp : teams) {
-			if (team.wins+team.to_play < cmp.wins) {
-				return true;
+	/* indexOf(team)
+		Returns integer representation of given Team object
+		for easy indexing.
+	*/
+	private int indexOf(Team team) {
+		for (int i = 0; i < n; i++) {
+			if (teams[i].equals(team)) return i;
+		}
+
+		return -1;
+	}
+
+	/* matches(team)
+		Returns a queue of game matches that have yet to
+		take place and that do not include the given team.
+	*/
+	private java.util.Queue<Match> matches(Team team) {
+		java.util.Queue<Match> matches = new java.util.LinkedList<>();
+		for (int i = 0; i < n; i++) {
+			if (!teams[i].equals(team)) {
+				for (int j = i+1; j < n; j++) {
+					if (teams[j] != team && versus[i][j] > 0) {
+						matches.add(new Match(teams[i], teams[j]));
+					}
+				}
 			}
 		}
 
-		return false;
+		return matches;
 	}
 
-	private FordFulkerson calculateMaxFlow(Team team) {
-		int team_index = indexOf(team);
-		if (results[team_index] == null) {
-			FlowNetwork network = buildTeamNetwork(team);
-			results[team_index] = new FordFulkerson(network, network.V()-2, network.V()-1);
-		}
+	/* calculateMaxFlow(team)
+	   returns the value of the maximum flow for a network
+	   based on the given team.
+	*/
+	private double calculateMaxFlow(Team team) {
+		FlowNetwork network = buildTeamNetwork(team);
 
-		return results[indexOf(team)];
+		return new FordFulkerson(network, network.V()-2, network.V()-1).value();
 	}
 
+	/* buildTeamNetwork(team)
+	   Constructs a flow network for the baseball-elimination
+	   problem for the given team.
+	*/
 	private FlowNetwork buildTeamNetwork(Team team) {
 		java.util.Queue<Match> matches = matches(team);
 		int size = n+matches.size()+2;
@@ -124,33 +148,29 @@ public class BaseballElimination {
 		return network;
 	}
 
-	private java.util.Queue<Match> matches(Team team) {
-		java.util.Queue<Match> matches = new java.util.LinkedList<>();
-		for (int i = 0; i < n; i++) {
-			if (!teams[i].equals(team)) {
-				for (int j = i+1; j < n; j++) {
-					if (teams[j] != team && versus[i][j] > 0) {
-						matches.add(new Match(teams[i], teams[j]));
-					}
-				}
+	/* isTriviallyEliminated(team)
+	   Checks if the given team even has a chance of winning
+	   based on number of wins, games left, and leading
+	   team's wins.
+	*/
+	private boolean isTriviallyEliminated(Team team) { 
+		for (Team cmp : teams) {
+			if (team.wins+team.to_play < cmp.wins) {
+				return true;
 			}
 		}
 
-		return matches;
+		return false;
 	}
 
-	private int indexOf(Team team) {
-		for (int i = 0; i < n; i++) {
-			if (teams[i].equals(team)) return i;
-		}
-
-		return -1;
-	}
-
-	
+	/* isEliminated(team)
+	   Checks the possibility of the given team winning the
+	   division.
+	*/
 	private boolean isEliminated(Team team) {
 		if (isTriviallyEliminated(team)) return true;
 
+		// Find maximum number of exterior games
 		int max = 0;
 		for (Match match : matches(team)) {
 			Team team1 = match.either();
@@ -158,7 +178,7 @@ public class BaseballElimination {
 			max += versus[indexOf(team1)][indexOf(team2)];
 		}
 
-		return calculateMaxFlow(team).value() < max;
+		return calculateMaxFlow(team) < max;
 	}
 
 	/* main()
@@ -191,6 +211,10 @@ public class BaseballElimination {
 	}
 }
 
+/* Team
+	Describes a team from the division.
+	Organizes relevant data on specific team.
+*/
 class Team {
 	String name;
 	int wins;
@@ -211,6 +235,10 @@ class Team {
 	}
 }
 
+/* Match
+	Describes a game match that two teams are participating in.
+	Allows for organization with pairs.
+*/
 class Match {
 	Team team1;
 	Team team2;
