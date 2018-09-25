@@ -163,29 +163,6 @@ game. As described above:
 •   If the player draws but the card-list is (already) empty, the game is over. Else if drawing causes
     the sum of the held-cards to exceed the goal, the game is over (after drawing). Else play continues
     with a larger held-cards and a smaller card-list. Sample solution for is under 20 lines. *)
-fun officiate (cards : card list, moves : move list, goal : int) = 
-    let
-        fun aux (cards : card list, held : card list, moves : move list, goal : int) =
-            case (cards, held, moves, goal) of
-            (_,     _, [],    _) => score (held, goal)
-            | ([],    _, _,     _) => score (held, goal)
-            | (c::cs, _, m::ms, _) => case m of
-                        Discard d => aux (c::cs, remove_card (held, d, IllegalMove), ms, goal)
-                        | Draw => case c::cs of
-                            [] => score (held, goal)
-                            | _ => 
-                                let
-                                val held' = c::held
-                                val held_sum = sum_cards (held')
-                                in
-                                if (held_sum > goal)
-                                then score (held', goal)
-                                else aux (cs, held', ms, goal)
-                                end
-    in
-	    aux (cards, [] , moves, goal) 
-    end
-
 fun officiate(cs : card list, moves : move list, goal : int) =
     let
         fun play(cs : card list, hand : card list, moves : move list, goal : int) =
