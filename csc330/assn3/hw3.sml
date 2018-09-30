@@ -17,19 +17,19 @@ datatype valu = Const of int
 	      | Constructor of string * valu
 
 (* Description of g:
-
+	g accepts 
 *)
 
 fun g f1 f2 p =
     let
-	val r = g f1 f2
+		val r = g f1 f2
     in
-	case p of
-	    Wildcard          => f1 ()
-	  | Variable x        => f2 x
-	  | TupleP ps         => List.foldl (fn (p,i) => (r p) + i) 0 ps
-	  | ConstructorP(_,p) => r p
-	  | _                 => 0
+		case p of
+			Wildcard          => f1 ()
+		| 	Variable x        => f2 x
+		| 	TupleP ps         => List.foldl (fn (p,i) => (r p) + i) 0 ps
+		| 	ConstructorP(_,p) => r p
+		| 	_                 => 0
     end
 
 
@@ -88,9 +88,31 @@ the exception NoAnswer. Hints: Sample solution is 5 lines and does nothing fancy
 	val x = List.map (f) (list) *)
 (* 
 val x = first_answer (fn x => if (x mod 2) = 0 then SOME x else NONE) [1,1,4,3]; *)
-
-val list = [1,1,4,3];
-val x = List.map (fn x => if (x mod 2) = 0 then SOME x else NONE) (list)
-
 fun first_answer f list = 
-	case [] => 
+	case list of
+	 	[] => raise NoAnswer
+	|	x::xs => 
+			case f(x) of
+				NONE => first_answer f xs
+			|	SOME value => value
+
+(* Write a function all_answers of type (’a -> ’b list option) -> ’a list -> ’b list
+option (notice the 2 arguments are curried). The first argument should be applied to elements of the
+second argument. If it returns NONE for any element, then the result for all_answers is NONE. Else the
+calls to the first argument will have produced SOME lst1, SOME lst2, ... SOME lstn and
+the result of all_answers is SOME lst where lst is lst1, lst2, ..., lstn appended together
+(the order in the result list should be preserved). Hints: The sample solution is 8 lines. It uses a helper
+function with an accumulator and uses @. Note all_answers f [] should evaluate to SOME []. *)
+fun all_answers f list =
+	let
+		fun helper f list acc =
+			case list of
+				[] => SOME acc
+			|	x::xs =>
+					case f(x) of	
+						NONE => NONE
+					|	SOME value => helper f xs (acc @ value)
+	in	
+		helper f list []
+	end
+
