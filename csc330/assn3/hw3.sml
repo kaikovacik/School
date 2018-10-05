@@ -139,24 +139,40 @@ and returns a list of all the strings it uses for variables. Using foldl with a 
 is useful in one case. The second takes a list of strings and decides if it has repeats. List.exists
 may be useful. Sample solution is approximately 18 lines. These are hints, it is not rquired to use
 foldl and List.exists, but they might make it easier. *)
+fun check_pat p =
+	let
+		fun string_list_from p =
+			case p of	
+				(Variable x | ConstructorP (_,Variable x)) => [x]
+			|	TupleP ps => List.foldl (fn (x2, x1) => string_list_from(x2) @ x1) [] ps
+			|	_ => []
 
-fun check_pat p = 
-  let 
-      fun get_str_list p = 
-         case p of
-            Variable x => [x] 
-           |TupleP ps  => List.foldl (fn (r,i) => get_str_list(r)@i) [] ps
-           | _ => []
+		fun all_values_unique_in sl =
+			case sl of 
+				[] => true
+			|	x::xs => 
+					if List.exists (fn y => x = y) xs then false
+					else all_values_unique_in xs
+	in
+		all_values_unique_in(string_list_from p)
+	end
 
-      fun do_same_exists x = List.exists(fn y => x = y ) 
-    
-      fun check_uniqueness lst =
-       case lst of
-        [] => true
-        | x::xs =>   if (do_same_exists x xs)
-                     then false
-                     else check_uniqueness xs
-  in
-    check_uniqueness ( get_str_list p)
-  end 
-  
+val x = check_pat (TupleP [Wildcard,Variable "cat",
+                         Variable "pp",TupleP[Variable "tt"],
+                         Wildcard,ConstP 3,
+                         ConstructorP("cony",Variable "pp")])
+
+(* Write a function match that takes a valu * pattern and returns a (string * valu) list
+option, namely NONE if the pattern does not match and SOME lst where lst is the list of bindings
+if it does. Note that if the value matches but the pattern has no patterns of the form Variable
+s, then the result is SOME []. Remember to look above for the rules for what patterns match
+what values, and what bindings they produce. Hints: Sample solution has one case expression
+with 7 branches. The branch for tuples uses all_answers and ListPair.zip. Sample solution is
+approximately 20 lines. These are hints: We are not requiring all_answers and ListPair.zip
+here, but they make it easier *)
+
+
+(* Write a function first_match that takes a value and a list of patterns and returns a (string *
+valu) list option, namely NONE if no pattern in the list matches or SOME lst where lst is
+the list of bindings for the first pattern in the list that matches. Use first_answer and a handleexpression.
+Notice that the 2 arguments are curried. Hints: Sample solution is 2 lines. *)
