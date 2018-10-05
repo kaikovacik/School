@@ -116,3 +116,57 @@ fun all_answers f list =
 		helper f list []
 	end
 
+(* Use g to define a function count_wildcards that takes a pattern and returns how many
+Wildcard patterns it contains. See the test cases to illustrate what it does. *)
+val count_wildcards = g (fn _ => 1) (fn _ => 0)
+
+(* Use g to define a function count_wild_and_variable_lengths that takes a pattern and
+returns the number of Wildcard patterns it contains plus the sum of the string lengths of all the
+variables in the variable patterns it contains. Use String.size. We care only about variable
+names; the constructor names are not relevant. *)
+val count_wild_and_variable_lengths = g (fn _ => 1) (fn x => String.size(x))
+
+(* Use g to define a function count_some_var that takes a string and a pattern (as a pair) and
+returns the number of times the string appears as a variable in the pattern. We care only about
+variable names; the constructor names are not relevant. *)
+fun count_some_var (s : string, p : pattern) =
+	g (fn _ => 0) (fn str => if s = str then 1 else 0) p
+
+(* Write a function check_pat that takes a pattern and returns true if and only if all the variables
+appearing in the pattern are distinct from each other (i.e., use different strings). The constructor
+names are not relevant. Hints: The sample solution uses two helper functions. The first takes a pattern
+and returns a list of all the strings it uses for variables. Using foldl with a function that uses append
+is useful in one case. The second takes a list of strings and decides if it has repeats. List.exists
+may be useful. Sample solution is approximately 18 lines. These are hints, it is not rquired to use
+foldl and List.exists, but they might make it easier. *)
+(* fun check_pat p = 
+  let 
+      fun get_str_list p = 
+         case p of
+            Variable x => [x] 
+           |TupleP ps  => List.foldl (fn (r,i) => get_str_list(r)@i) [] ps
+           | _ => []
+
+      fun do_same_exists x = List.exists(fn y => x = y ) 
+    
+      fun check_uniqueness lst =
+       case lst of
+        [] => true
+        | x::xs =>   if (do_same_exists x xs)
+                     then false
+                     else check_uniqueness xs
+  in
+    check_uniqueness ( get_str_list p)
+  end *)
+
+
+fun h1 ps = 
+	List.map (fn var_s => case var_s of Variable s => s | _ => "") (List.filter (fn p => case p of Variable s => true | _ => false) ps)
+
+val p = TupleP [Wildcard,Variable "cat",
+                         Variable "pp",TupleP[Variable "tt"],
+                         Wildcard,ConstP 3,
+                         ConstructorP("cony",Variable "pp")]
+val x = case p of 
+			TupleP ps => h1(ps)
+		|	_ => [];
