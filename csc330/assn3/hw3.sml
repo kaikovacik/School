@@ -139,7 +139,8 @@ and returns a list of all the strings it uses for variables. Using foldl with a 
 is useful in one case. The second takes a list of strings and decides if it has repeats. List.exists
 may be useful. Sample solution is approximately 18 lines. These are hints, it is not rquired to use
 foldl and List.exists, but they might make it easier. *)
-(* fun check_pat p = 
+
+fun check_pat p = 
   let 
       fun get_str_list p = 
          case p of
@@ -157,16 +158,5 @@ foldl and List.exists, but they might make it easier. *)
                      else check_uniqueness xs
   in
     check_uniqueness ( get_str_list p)
-  end *)
-
-
-fun h1 ps = 
-	List.map (fn var_s => case var_s of Variable s => s | _ => "") (List.filter (fn p => case p of Variable s => true | _ => false) ps)
-
-val p = TupleP [Wildcard,Variable "cat",
-                         Variable "pp",TupleP[Variable "tt"],
-                         Wildcard,ConstP 3,
-                         ConstructorP("cony",Variable "pp")]
-val x = case p of 
-			TupleP ps => h1(ps)
-		|	_ => [];
+  end 
+  
