@@ -16,8 +16,23 @@ datatype valu = Const of int
 	      | Tuple of valu list
 	      | Constructor of string * valu
 
+datatype card = 
+		King
+	|	Queen
+	|	Jack
+	|	Num of int
+	|	Ace
+
 (* Description of g:
-	g accepts 
+	g accepts two functions, f1 and f2, and a pattern p as paramaters.
+	If the pattern is a Wildcard, then f1 executes returning some int.
+	If the pattern is a Variable x, then f2 executes, accepting x and returning an int.
+	If the pattern is a TupleP ps, then g recursvely runs on all values in the TupleP and
+	sums the values that they individually return.
+	If the pattern is a ConstructorP, then g handles calls itself on the pattern and ignores
+	the name.
+	If anything else, then g returns 0.
+	One of g's potential uses is to count specific patterns.
 *)
 
 fun g f1 f2 p =
@@ -84,10 +99,6 @@ that the 2 arguments are curried. The first argument should be applied to elemen
 argument in order, until the first time it returns SOME v for some v and then v is the result of the call
 to first_answer. If the first argument returns NONE for all list elements, then first_answer should raise
 the exception NoAnswer. Hints: Sample solution is 5 lines and does nothing fancy. *)
-(* fun first_answer f list = 
-	val x = List.map (f) (list) *)
-(* 
-val x = first_answer (fn x => if (x mod 2) = 0 then SOME x else NONE) [1,1,4,3]; *)
 fun first_answer f list = 
 	case list of
 	 	[] => raise NoAnswer
@@ -157,11 +168,6 @@ fun check_pat p =
 		all_values_unique_in(string_list_from p)
 	end
 
-val x = check_pat (TupleP [Wildcard,Variable "cat",
-                         Variable "pp",TupleP[Variable "tt"],
-                         Wildcard,ConstP 3,
-                         ConstructorP("cony",Variable "pp")])
-
 (* Write a function match that takes a valu * pattern and returns a (string * valu) list
 option, namely NONE if the pattern does not match and SOME lst where lst is the list of bindings
 if it does. Note that if the value matches but the pattern has no patterns of the form Variable
@@ -170,9 +176,33 @@ what values, and what bindings they produce. Hints: Sample solution has one case
 with 7 branches. The branch for tuples uses all_answers and ListPair.zip. Sample solution is
 approximately 20 lines. These are hints: We are not requiring all_answers and ListPair.zip
 here, but they make it easier *)
-
+fun match (v, p) = 
+	case (v, p) of 
+		(_, Wildcard) => 
+			SOME []
+	|	(Const value, ConstP pattern) => 
+			if value = pattern then SOME [] else NONE
+	|	(Unit, UnitP) => 
+			SOME []
+	|	(Constructor (s1, value), ConstructorP (s2, pattern)) => 
+			if s1 = s2 then match(value, pattern) else NONE
+	|	(Tuple values, TupleP patterns) => 
+			if List.length values = List.length patterns then
+				case all_answers match (ListPair.zip(values, patterns)) of 
+					SOME value => 
+						SOME value
+				|	_ => 
+					NONE
+			else NONE
+	|	(_, Variable s) => 
+			SOME [(s, v)]
+	|	(_, _) => 
+			NONE
 
 (* Write a function first_match that takes a value and a list of patterns and returns a (string *
 valu) list option, namely NONE if no pattern in the list matches or SOME lst where lst is
 the list of bindings for the first pattern in the list that matches. Use first_answer and a handleexpression.
 Notice that the 2 arguments are curried. Hints: Sample solution is 2 lines. *)
+fun first_match v ps =
+	SOME (first_answer (fn x => match(v, x)) ps)
+	handle NoAnswer => NONE
